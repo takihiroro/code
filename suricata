@@ -1,0 +1,186 @@
+That programm will help you create Suricata ruleset more easy, to start it you need run main.py
+def set_action(num):
+    """choosing action to set"""
+    if num==1:
+        s="pass "
+        return s
+    elif num==2:
+        s=("drop ")
+        return s
+    elif num==3:
+        s=("reject ")
+        return s
+    elif num==4:
+        s=("alert ")
+        return s
+    else:
+        print("Error, chose from 1 to 4")
+        return "Error"
+
+def set_protocol(num):
+    """chosing transmission protocol to set"""
+    if num==1:
+        s="tcp "
+        return s
+    elif num==2:
+        s=("udp ")
+        return s
+    elif num==3:
+        s=("icmp ")
+        return s
+    elif num==4:
+        s=input("Type protocol name here:")
+        s=s.strip()+" "
+        return s
+    else:
+        print("Error, chose from 1 to 4")
+        return "Error"
+
+def set_net(num):
+    """choosing ip to set"""
+    if num==1:
+        s="$HOME_NET "
+        return s
+    elif num==2:
+        s="$EXTERNAL_NET "
+        return s
+    elif num==3:
+        s="any "
+        return s
+    elif num==4:
+        s = input("Type ip here:")
+        s = s.strip() + " "
+        return s
+    else:
+        print("Error, chose from 1 to 3")
+        return "Error"
+
+def set_port(num):
+    """choosing port to set"""
+    if num==1:
+        s="any "
+        return s
+    elif num==2:
+        s = input("Type ip here:")
+        s = s.strip() + " "
+        return s
+    else:
+        print("Error, chose from 1 to 2")
+        return "Error"
+
+def set_direction(num):
+    """choosing direction to set"""
+    if num==1:
+        s="-> "
+        return s
+    elif num==2:
+        s = "<> "
+        return s
+    else:
+        print("Error, chose from 1 to 2")
+        return "Error"
+
+def set_options(num):
+    """choosing option to set"""
+    if num==0:
+        s="Exit"
+        return s
+    elif num==1:
+        s='msg:"'+input("Type message here:")+'"'
+        return s
+    elif num==2:
+        s = "sid:" + input("Type signature ID here:")
+        return s
+    elif num==3:
+        s = "rev:" + input("Type revision here:")
+        return s
+    elif num==4:
+        s = "gid:" + input("Type group ID here:")
+        return s
+    elif num==5:
+        s = "classtype:"+ input("Type classtypes here")
+        return s
+    elif num==6:
+        s = "reference:" + input("Type reference here:")
+        return s
+    elif num==7:
+        s = "priority:" + input("Type priority number here:")
+        return s
+    elif num==8:
+        s = "metadata:" + input("Type metadatas here:")
+        return s
+    elif num==9:
+        s = "target:[" + input("Type source ip here:")+ "|"+ input("Type destination ip here:") + "]"
+        return s
+    elif num==10:
+        s = 'content:"' + input("Type content here:")+'"'
+        return s
+    elif num==11:
+        s = input("Type option here:")
+        return s
+    else:
+        print("Error, chose from 1 to 10")
+        return "Error"
+
+def crt_new(fname):
+    """creates new file with rule or replace existing"""
+    f=open(fname+".rules",'w')
+    f.write(forming()+"\n")
+    f.close()
+    return "Success"
+
+def add_to_ex(fname):
+    """add new rule in existing file"""
+    try:
+        f=open(fname+".rules","r")
+        f.close()
+        f=open(fname+".rules","a")
+        f.write(forming()+"\n")
+        f.close()
+        return "Success"
+    except IOError:
+        return "Error, file does not exist"
+
+def forming():
+    """format rule in interactive menu"""
+    f= do_until(set_action,"Chose number of action\n1)pass\n2)drop\n3)reject\n4)alert\nInput:")
+    f = f + do_until(set_protocol,"Chose number of protocol\n1)tcp\n2)udp\n3)icmp\n4)Input other\nInput:")
+    f = f + do_until(set_net,"Chose number of source net\n1)HOME_NET from config\n2)EXTERNAL_NET from config\n3)any\n4)Input other\nInput:")
+    f = f + do_until(set_port,"Chose number of source port\n1)any\n2)Input other\nInput:")
+    f = f + do_until(set_direction,"Chose number of direction net\n1)to destination only\n2)both source and destination\nInput:")
+    f = f + do_until(set_net,"Chose number of destination net\n1)HOME_NET from config\n2)EXTERNAL_NET from config\n3)any\n4)Input other\nInput:")
+    f = f + do_until(set_port, "Chose number of destination port\n1)any\n2)Input other\nInput:")+"("
+    s=''
+    while(s=='Exit')|(s==''):
+        s=do_until(set_options,"Chose number of option\n1)msg\n2)sid\n3)rev\n4)gid\n5)classtype\n6)reference\n7)priority\n8)metadata\n9)target\n10)content\n11)Input other\nTo end type 0\nInput:")
+        if s!='Exit':
+            f=f+s+"; "
+        else:
+            print("Error, ruleset needs at least 1 option")
+    while s!='Exit':
+        s = do_until(set_options,"Chose number of option\n1)msg\n2)sid\n3)rev\n4)gid\n5)classtype\n6)reference\n7)priority\n8)metadata\n9)target\n10)content\n11)Input other\nTo end type 0\nInput:")
+        if s!="Exit":
+            f = f + s + "; "
+    f=f[0:len(f)-1]+")"
+    return f
+
+def do_until(func,inp_msg):
+    """do ... until analog for functions"""
+    s = func(int(input(inp_msg)))
+    while s == "Error":
+        s = func(int(input("Input:")))
+    return s
+
+if __name__ == '__main__':
+    while True:
+        s=int(input("Chose number of what you want to do:\n1)create new ruleset\n2)supplement the existing ruleset\nTo end type 0\nInput:"))
+        if s==1:
+            f=input("Input filename:")
+            print(crt_new(f))
+        elif s==2:
+            f=input("Input filename:")
+            print(add_to_ex(f))
+        elif s==0:
+            break
+        else:
+            print("Error, chose from 0 to 2")
